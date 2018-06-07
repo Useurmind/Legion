@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 using Autofac;
@@ -10,20 +11,24 @@ using Legion.Core.Messages.Types;
 
 using Module = Autofac.Module;
 
-namespace Heliu.Core.Messages
+namespace Legion.Autofac
 {
     public class MessageModule : Module
     {
         private readonly IEnumerable<Assembly> assembliesToScan;
 
-        public MessageModule(IEnumerable<Assembly> assembliesToScan)
+        public MessageModule(IEnumerable<Assembly> assembliesToScan = null)
         {
             this.assembliesToScan = assembliesToScan;
+            if (this.assembliesToScan == null)
+            {
+                this.assembliesToScan = new []{ Assembly.GetEntryAssembly(), Assembly.GetCallingAssembly() }.Distinct();
+            }
         }
 
         protected override void Load(ContainerBuilder builder)
         {
-            builder.Register(c => new MessageTypeRegistry()).As<IMessageTypeRegistry>();
+            builder.Register(c => new MessageTypeRegistry(this.assembliesToScan)).As<IMessageTypeRegistry>();
             builder.Register(c => new MessageDispatcher(c.Resolve<IMessageListener>(), c.Resolve<IMessageHandlerRegistry>()))
                    .As<IMessageDispatcher>();
 

@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Confluent.Kafka;
 using Confluent.Kafka.Serialization;
 
@@ -12,7 +14,7 @@ using Legion.Core.Threading;
 
 using Newtonsoft.Json.Linq;
 
-namespace Heliu.Core.Kafka
+namespace Legion.Kafka
 {
     public class KafkaMessageListener : IMessageListener
     {
@@ -73,7 +75,7 @@ namespace Heliu.Core.Kafka
 
                     Console.WriteLine($"Topic: {msg.Topic} Partition: {msg.Partition} Offset: {msg.Offset} {msg.Value}");
 
-                    await HandleMessage(msg);
+                    await this.HandleMessage(msg);
 
                     Console.WriteLine($"Committing offset");
                     var committedOffsets = consumer.CommitAsync(msg).Result;

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Heliu.Core.Kafka
+namespace Legion.Kafka
 {
     public static class KafkaConfigExtensions
     {

@@ -1,9 +1,11 @@
+using System.Linq;
+
 using Autofac;
 
 using Legion.Core.Messages;
 using Legion.Core.Messages.Types;
 
-namespace Heliu.Core.Kafka
+namespace Legion.Kafka
 {
     public class KafkaModule : Module
     {
@@ -15,10 +17,8 @@ namespace Heliu.Core.Kafka
         {
             this.consumeFromOffset = consumeFromOffset;
             this.listenerGroupId = listenerGroupId;
-            this.config = new KafkaConfig
-            {
-                BootstrapServers = bootstrapServers
-            };
+            this.config = new KafkaConfig();
+            this.config.BootstrapServers(bootstrapServers);
         }
 
         override protected void Load(ContainerBuilder builder)

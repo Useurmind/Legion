@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Linq;
 
 using FluentAssertions;
 
@@ -8,7 +6,7 @@ using Legion.Core.Messages.InMemory;
 
 using Xunit;
 
-namespace Legion.Core.Test.InMemory
+namespace Legion.Core.Test.Messages.InMemory
 {
     public class InMemoryMessageStoreTest
     {

@@ -30,13 +30,21 @@ namespace Legion.Core.Messages.Handler
         /// <param name="registerMessageHandler">This is a function that can be provided by a container to register message handler types with it.</param>
         public void ScanForMessageHandlerTypes(IEnumerable<Assembly> assembliesToScan, Action<Type> registerMessageHandler)
         {
-            var messageHandlerTypes = Assembly.GetAssembly(this.GetType()).GetTypes().Where(t => t.GetCustomAttribute(typeof(MessageHandlerAttribute)) != null);
-            this.messageHandlerTypesByMessageType = messageHandlerTypes.GroupBy(x => GetMessageTypeOfHandlerType(x))
-                                                                       .ToDictionary(x => x.Key, x => (IEnumerable<Type>)x);
-
-            foreach (var messageHandlerType in messageHandlerTypes)
+            foreach (var assembly in assembliesToScan)
             {
-                registerMessageHandler(messageHandlerType);
+                var messageHandlerTypes = assembly.GetTypes()
+                                                  .Where(
+                                                      t => t.GetCustomAttribute(typeof(MessageHandlerAttribute))
+                                                           != null);
+                this.messageHandlerTypesByMessageType = messageHandlerTypes
+                                                        .GroupBy(x => GetMessageTypeOfHandlerType(x)).ToDictionary(
+                                                            x => x.Key,
+                                                            x => (IEnumerable<Type>)x);
+
+                foreach (var messageHandlerType in messageHandlerTypes)
+                {
+                    registerMessageHandler(messageHandlerType);
+                }
             }
         }
 

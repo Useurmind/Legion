@@ -14,10 +14,13 @@ namespace Legion.Core.Messages.Types
     {
         private Dictionary<string, Type> messageTypesByName = new Dictionary<string, Type>();
 
-        public MessageTypeRegistry()
+        public MessageTypeRegistry(IEnumerable<Assembly> assembliesToScan)
         {
-            var messageTypes = Assembly.GetAssembly(this.GetType()).GetTypes().Where(t => t.GetCustomAttribute(typeof(MessageAttribute)) != null);
-            this.messageTypesByName = messageTypes.ToDictionary(x => x.Name, x => x);
+            foreach (var assembly in assembliesToScan)
+            {
+                var messageTypes = assembly.GetTypes().Where(t => t.GetCustomAttribute(typeof(MessageAttribute)) != null);
+                this.messageTypesByName = messageTypes.ToDictionary(x => x.Name, x => x);
+            }
         }
 
         public Type GetMessageType(string messageTypeName)

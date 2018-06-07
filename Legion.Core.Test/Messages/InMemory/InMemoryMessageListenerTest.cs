@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,7 +9,7 @@ using Legion.Core.Messages.InMemory;
 
 using Xunit;
 
-namespace Legion.Core.Test.InMemory
+namespace Legion.Core.Test.Messages.InMemory
 {
     public class InMemoryMessageListenerTest
     {
