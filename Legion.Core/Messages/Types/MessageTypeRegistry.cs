@@ -19,7 +19,8 @@ namespace Legion.Core.Messages.Types
             foreach (var assembly in assembliesToScan)
             {
                 var messageTypes = assembly.GetTypes().Where(t => t.GetCustomAttribute(typeof(MessageAttribute)) != null);
-                this.messageTypesByName = messageTypes.ToDictionary(x => x.Name, x => x);
+                
+                this.messageTypesByName = messageTypes.ToDictionary(this.GetMessageTypeName, x => x);
             }
         }
 
@@ -32,6 +33,17 @@ namespace Legion.Core.Messages.Types
             }
 
             return messageType;
+        }
+
+        private string GetMessageTypeName(Type messageType)
+        {
+            var messageTypeNameAttribute = messageType.GetCustomAttribute<MessageTypeNameAttribute>();
+            if (messageTypeNameAttribute != null && !string.IsNullOrEmpty(messageTypeNameAttribute.TypeName))
+            {
+                return messageTypeNameAttribute.TypeName;
+            }
+
+            return messageType.Name;
         }
     }
 }

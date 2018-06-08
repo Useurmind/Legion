@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Linq;
 
 using Autofac;
 
 using Legion.Core.Messages;
 using Legion.Core.Messages.InMemory;
 
-namespace Legion.Autofac
+namespace Legion.Autofac.Modules
 {
     /// <summary>
     /// Contains all registrations to use the in memory storage for events.
