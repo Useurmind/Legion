@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,12 +24,12 @@ namespace Legion.Core.Messages.Consume
         }
 
         /// <inheritdoc />
-        public async Task RunDispatchLoopAsync(string topic, CancellationToken? cancellationToken = null)
+        public async Task RunDispatchLoopAsync(IEnumerable<string> topics, CancellationToken? cancellationToken = null)
         {
-            await this.messageListener.StartAsync(topic, this.HandleMessageObject, cancellationToken);
+            await this.messageListener.StartAsync(topics, this.HandleMessageObject, cancellationToken);
         }
 
-        private async Task HandleMessageObject(object header, object messageObject)
+        private async Task HandleMessageObject(object key, object header, object messageObject)
         {
             Console.WriteLine($"Handling {messageObject.GetType().Name}");
             var messageHandler = this.messageHandlerRegistry.GetMessageHandler(messageObject.GetType());

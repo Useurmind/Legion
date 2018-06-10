@@ -7,11 +7,11 @@ namespace Legion.Core.Messages.InMemory
     {
         private Dictionary<string, InMemoryQueue> queues = new Dictionary<string, InMemoryQueue>();
 
-        public int AddMessage(string topic, object header, object message)
+        public int AddMessage(string topic, object key, object header, object message)
         {
             var queue = this.GetQueue(topic);
 
-            return queue.AddMessage(header, message);
+            return queue.AddMessage(key, header, message);
         }
 
         public object GetMessage(string topic, int index)
@@ -26,6 +26,13 @@ namespace Legion.Core.Messages.InMemory
             var queue = this.GetQueue(topic);
 
             return queue.GetMessageHeader(index);
+        }
+
+        public object GetMessageKey(string topic, int index)
+        {
+            var queue = this.GetQueue(topic);
+
+            return queue.GetMessageKey(index);
         }
 
         public int GetLastIndex(string topic)

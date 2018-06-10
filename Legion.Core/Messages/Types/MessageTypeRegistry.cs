@@ -35,7 +35,7 @@ namespace Legion.Core.Messages.Types
             return messageType;
         }
 
-        private string GetMessageTypeName(Type messageType)
+        public string GetMessageTypeName(Type messageType)
         {
             var messageTypeNameAttribute = messageType.GetCustomAttribute<MessageTypeNameAttribute>();
             if (messageTypeNameAttribute != null && !string.IsNullOrEmpty(messageTypeNameAttribute.TypeName))

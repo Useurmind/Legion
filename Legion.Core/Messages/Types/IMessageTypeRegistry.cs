@@ -9,5 +9,7 @@ namespace Legion.Core.Messages.Types
     public interface IMessageTypeRegistry
     {
         Type GetMessageType(string messageTypeName);
+
+        string GetMessageTypeName(Type messageType);
     }
 }

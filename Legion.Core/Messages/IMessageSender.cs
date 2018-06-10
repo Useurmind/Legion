@@ -13,9 +13,10 @@ namespace Legion.Core.Messages
         /// Both header and message should be serializable using the configured serializer.
         /// </summary>
         /// <param name="topic"></param>
+        /// <param name="key">A C# object representing the key of the message.</param>
         /// <param name="header">A c# object representing a header.</param>
         /// <param name="message">A c# object representing a message.</param>
         /// <returns></returns>
-        Task SendMessageAsync(string topic, object header, object message);
+        Task SendMessageAsync(string topic, object key, object header, object message);
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,9 +12,9 @@ namespace Legion.Core.Messages.Consume
         /// <summary>
         /// Run the dispatch loop asynchronously.
         /// </summary>
-        /// <param name="topic">The topic to dispatch messages for.</param>
+        /// <param name="topics">The topics to dispatch messages for.</param>
         /// <param name="cancellationToken">Cancellation token to cancel dispatching.</param>
         /// <returns></returns>
-        Task RunDispatchLoopAsync(string topic, CancellationToken? cancellationToken);
+        Task RunDispatchLoopAsync(IEnumerable<string> topics, CancellationToken? cancellationToken);
     }
 }

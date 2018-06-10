@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +10,10 @@ namespace Legion.Core.Messages.InMemory
 {
     public class InMemoryMessageListener : IMessageListener
     {
+        private Dictionary<string, int> currentIndexes;
         private readonly InMemoryMessageStore inMemoryMessageStore;
+
+        private HandleMessageAsync handleMessageObject;
 
         public InMemoryMessageListener(InMemoryMessageStore inMemoryMessageStore)
         {
@@ -17,15 +21,18 @@ namespace Legion.Core.Messages.InMemory
         }
 
         /// <inheritdoc />
-        public async Task StartAsync(string topic, HandleMessageAsync handleMessageObject, CancellationToken? cancellationToken = null)
+        public async Task StartAsync(IEnumerable<string> topics, HandleMessageAsync handleMessageObject, CancellationToken? cancellationToken = null)
         {
-            var currentIndex = -1;
+            this.currentIndexes = topics.ToDictionary(x => x, x => -1);
+            this.handleMessageObject = handleMessageObject;
 
             while (cancellationToken.KeepRunning())
             {
-                while (cancellationToken.KeepRunning() && currentIndex >= this.inMemoryMessageStore.GetLastIndex(topic))
+                var updatedTopics = this.GetTopicsWithNewMessages();
+                while (cancellationToken.KeepRunning() && !updatedTopics.Any())
                 {
                     Thread.Sleep(100);
+                    updatedTopics = this.GetTopicsWithNewMessages();
                 }
 
                 if (!cancellationToken.KeepRunning())
@@ -33,15 +40,34 @@ namespace Legion.Core.Messages.InMemory
                     break;
                 }
 
-                currentIndex++;
-
-                var message = this.inMemoryMessageStore.GetMessage(topic, currentIndex);
-                var messageHeader = this.inMemoryMessageStore.GetMessageHeader(topic, currentIndex);
-
-                await handleMessageObject(messageHeader, message);
+                foreach (var topic in updatedTopics)
+                {
+                    await this.HandleMessageInTopic(topic);
+                }
             }
+        }
 
-            int a = 1;
+        private IEnumerable<string> GetTopicsWithNewMessages()
+        {
+            return this.currentIndexes.Keys.Where(x => this.HasTopicNewMessage(x)).ToArray();
+        }
+
+        private bool HasTopicNewMessage(string topic)
+        {
+            return this.currentIndexes[topic] < this.inMemoryMessageStore.GetLastIndex(topic);
+        }
+
+        private async Task HandleMessageInTopic(string topic)
+        {
+            var currentIndex = this.currentIndexes[topic];
+
+            currentIndex++;
+
+            var message = this.inMemoryMessageStore.GetMessage(topic, currentIndex);
+            var messageHeader = this.inMemoryMessageStore.GetMessageHeader(topic, currentIndex);
+            var messageKey = this.inMemoryMessageStore.GetMessageKey(topic, currentIndex);
+
+            await this.handleMessageObject(messageKey, messageHeader, message);
         }
     }
 }

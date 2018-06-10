@@ -23,9 +23,9 @@ namespace Legion.Core.Test.Messages.InMemory
             var header3 = new object();
             var messageStore = new InMemoryMessageStore();
 
-            var index1 = messageStore.AddMessage(topic, header1, message1);
-            var index2 = messageStore.AddMessage(topic2, header2, message2);
-            var index3 = messageStore.AddMessage(topic, header3, message3);
+            var index1 = messageStore.AddMessage(topic, null, header1, message1);
+            var index2 = messageStore.AddMessage(topic2, null, header2, message2);
+            var index3 = messageStore.AddMessage(topic, null, header3, message3);
 
             index1.Should().Be(0);
             index2.Should().Be(0);
@@ -38,6 +38,10 @@ namespace Legion.Core.Test.Messages.InMemory
             messageStore.GetMessageHeader(topic, 0).Should().Be(header1);
             messageStore.GetMessageHeader(topic2, 0).Should().Be(header2);
             messageStore.GetMessageHeader(topic, 1).Should().Be(header3);
+
+            messageStore.GetMessageKey(topic, 0).Should().BeNull();
+            messageStore.GetMessageKey(topic2, 0).Should().BeNull();
+            messageStore.GetMessageKey(topic, 1).Should().BeNull();
         }
     }
 }
