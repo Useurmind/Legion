@@ -15,7 +15,7 @@ namespace Legion.Core.Messages
     /// <param name="header">The header as C# object.</param>
     /// <param name="message">The message as C# object.</param>
     /// <returns></returns>
-    public delegate Task HandleMessageAsync(object key, object header, object message);
+    public delegate Task HandleMessageAsync(object message, object key, IDictionary<string, object> headers);
 
     /// <summary>
     /// This interface serves as the listener interface for implementations of different message stores.

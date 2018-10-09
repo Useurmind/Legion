@@ -16,11 +16,12 @@ namespace Legion.Core.Messages.InMemory
         /// <param name="header"></param>
         /// <param name="message"></param>
         /// <returns>The index of the new message.</returns>
-        public int AddMessage(object key, object header, object message)
+        public int AddMessage(object key, IDictionary<string, object> header, object message)
         {
-            if (header == null)
+            object savedHeader = header;
+            if (savedHeader == null)
             {
-                header = new EmptyMessageObject();
+                savedHeader = new EmptyMessageObject();
             }
             if (key == null)
             {
@@ -28,7 +29,7 @@ namespace Legion.Core.Messages.InMemory
             }
 
             this.messageKeys.Add(key);
-            this.messageHeaders.Add(header);
+            this.messageHeaders.Add(savedHeader);
             this.messages.Add(message);
 
             return this.LastIndex();
@@ -39,7 +40,7 @@ namespace Legion.Core.Messages.InMemory
             return this.messages[index];
         }
 
-        public object GetMessageHeader(int index)
+        public IDictionary<string, byte[]> GetMessageHeader(int index)
         {
             var header = this.messageHeaders[index];
             if (header is EmptyMessageObject)
@@ -47,7 +48,7 @@ namespace Legion.Core.Messages.InMemory
                 return null;
             }
 
-            return header;
+            return (IDictionary<string, byte[]>)header;
         }
 
         public object GetMessageKey(int index)

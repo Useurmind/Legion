@@ -14,7 +14,7 @@ namespace Legion.Core.Messages.InMemory
             this.inMemoryMessageStore = inMemoryMessageStore;
         }
 
-        public async Task SendMessageAsync(string topic, object key, object header, object message)
+        public async Task SendMessageAsync(string topic, object message, object key, IDictionary<string, object> header)
         {
             this.inMemoryMessageStore.AddMessage(topic, key, header, message);
         }

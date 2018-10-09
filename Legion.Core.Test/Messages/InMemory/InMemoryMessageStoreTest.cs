@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 using FluentAssertions;
 
@@ -18,9 +19,9 @@ namespace Legion.Core.Test.Messages.InMemory
             var message1 = new object();
             var message2 = new object();
             var message3 = new object();
-            var header1 = new object();
-            var header2 = new object();
-            var header3 = new object();
+            var header1 = new Dictionary<string, byte[]>();
+            var header2 = new Dictionary<string, byte[]>();
+            var header3 = new Dictionary<string, byte[]>();
             var messageStore = new InMemoryMessageStore();
 
             var index1 = messageStore.AddMessage(topic, null, header1, message1);
@@ -35,9 +36,9 @@ namespace Legion.Core.Test.Messages.InMemory
             messageStore.GetMessage(topic2, 0).Should().Be(message2);
             messageStore.GetMessage(topic, 1).Should().Be(message3);
 
-            messageStore.GetMessageHeader(topic, 0).Should().Be(header1);
-            messageStore.GetMessageHeader(topic2, 0).Should().Be(header2);
-            messageStore.GetMessageHeader(topic, 1).Should().Be(header3);
+            messageStore.GetMessageHeader(topic, 0).Should().BeSameAs(header1);
+            messageStore.GetMessageHeader(topic2, 0).Should().BeSameAs(header2);
+            messageStore.GetMessageHeader(topic, 1).Should().BeSameAs(header3);
 
             messageStore.GetMessageKey(topic, 0).Should().BeNull();
             messageStore.GetMessageKey(topic2, 0).Should().BeNull();

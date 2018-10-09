@@ -21,10 +21,10 @@ namespace Legion.Kafka
         /// <param name="kafkaConfig"></param>
         /// <param name="consumeFromOffset">A dictionary with indexes for topics from which to start (does not need to be complete, topics without explicit indexes are restarted from the listener group index).</param>
         /// <returns></returns>
-        public static IDependencyRegistrationContext AddKafkaListener(this IDependencyRegistrationContext context, KafkaConfig kafkaConfig, string listenerGroupId, Dictionary<string, long> consumeFromOffset)
+        public static IDependencyRegistrationContext AddKafkaListener(this IDependencyRegistrationContext context, ConsumerConfig kafkaConfig, string listenerGroupId, Dictionary<string, long> consumeFromOffset)
         {
-            context.RegisterSingleton(c => new Consumer(kafkaConfig), typeof(Consumer));
-            context.RegisterTransient(c => new KafkaMessageListener(c.Resolve<Consumer>(), listenerGroupId, consumeFromOffset, c.Resolve<IMessageSerializer>()));
+            context.RegisterSingleton(c => new Consumer<byte[], byte[]>(kafkaConfig), typeof(Consumer<byte[], byte[]>));
+            context.RegisterTransient(c => new KafkaMessageListener(c.Resolve<Consumer<byte[], byte[]>>(), listenerGroupId, consumeFromOffset, c.Resolve<IMessageSerializer>()));
 
             return context;
         }
@@ -34,10 +34,10 @@ namespace Legion.Kafka
         /// <param name="context"></param>
         /// <param name="kafkaConfig"></param>
         /// <returns></returns>
-        public static IDependencyRegistrationContext AddKafkaSender(this IDependencyRegistrationContext context, KafkaConfig kafkaConfig)
+        public static IDependencyRegistrationContext AddKafkaSender(this IDependencyRegistrationContext context, ProducerConfig kafkaConfig)
         {
-            context.RegisterSingleton(c => new Producer(kafkaConfig), typeof(Producer));
-            context.RegisterTransient(c => new KafkaMessageSender(c.Resolve<Producer>(), c.Resolve<IMessageSerializer>()));
+            context.RegisterSingleton(c => new Producer<byte[], byte[]>(kafkaConfig), typeof(Producer<byte[], byte[]>));
+            context.RegisterTransient(c => new KafkaMessageSender(c.Resolve<Producer<byte[], byte[]>>(), c.Resolve<IMessageSerializer>()));
 
             return context;
         }

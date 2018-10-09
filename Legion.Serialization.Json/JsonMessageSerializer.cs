@@ -18,27 +18,52 @@ namespace Legion.Serialization.Json
             this.messageTypeRegistry = messageTypeRegistry;
         }
 
-        public object Deserialize(byte[] storedMessageFormat)
+        public object Deserialize(ISerializedMessage storedMessageFormat)
         {
-            var messageString = Encoding.UTF8.GetString(storedMessageFormat);
-
-            var jobject = JObject.Parse(messageString);
-            var typeName = jobject["@type"].Value<string>();
+            var messageString = Encoding.UTF8.GetString(storedMessageFormat.Value);
+            var typeName = Encoding.UTF8.GetString(storedMessageFormat.Headers["type"]);
 
             var messageType = this.messageTypeRegistry.GetMessageType(typeName);
 
-            return jobject.ToObject(messageType);
+            return JsonConvert.DeserializeObject(messageString, messageType);
         }
 
-        public byte[] Serialize(object runtimeMessageFormat)
+        public ISerializedMessage Serialize(object runtimeMessageFormat)
         {
-            var jobject = JObject.FromObject(runtimeMessageFormat);
+            var messageString = JsonConvert.SerializeObject(runtimeMessageFormat);
             var typeName = this.messageTypeRegistry.GetMessageTypeName(runtimeMessageFormat.GetType());
+            
+            var serializedMessage = new SerializedMessage();
+            serializedMessage.Value = Encoding.UTF8.GetBytes(messageString);
+            serializedMessage.Headers.Add("type", Encoding.UTF8.GetBytes(typeName));
 
-            jobject.Add("@type", typeName);
+            return serializedMessage;
+        }
 
-            var messageString = jobject.ToString(Formatting.None);
-            return Encoding.UTF8.GetBytes(messageString);
+        public byte[] SerializeKey(object keyValue)
+        {
+            return this.ConvertToJsonByteArray(keyValue);
+        }
+
+        public byte[] SerializeHeaderValue(object headerValue)
+        {
+            return this.ConvertToJsonByteArray(headerValue);
+        }
+
+        public object DeserializeKey(byte[] keyBytes)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object DeserializeHeaderValue(byte[] headerValueBytes)
+        {
+            throw new NotImplementedException();
+        }
+
+        private byte[] ConvertToJsonByteArray(object value)
+        {
+            var jsonString = JsonConvert.SerializeObject(value);
+            return Encoding.UTF8.GetBytes(jsonString);
         }
     }
 }

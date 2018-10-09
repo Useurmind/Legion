@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Confluent.Kafka;
-using Confluent.Kafka.Serialization;
 
 using Legion.Core.Messages;
 using Legion.Core.Messages.Serialization;
@@ -23,14 +22,14 @@ namespace Legion.Kafka
 
         private HandleMessageAsync handleMessageObject;
 
-        private readonly Consumer consumer;
+        private readonly Consumer<byte[], byte[]> consumer;
 
         private readonly IDictionary<string, long> consumeFromOffset;
 
         private readonly IMessageSerializer messageSerializer;
 
         public KafkaMessageListener(
-            Consumer consumer,
+            Consumer<byte[], byte[]> consumer,
             string listenerGroupId,
             IDictionary<string, long> consumeFromOffset,
             IMessageSerializer messageSerializer)
@@ -52,9 +51,6 @@ namespace Legion.Kafka
 
             this.consumer.OnError += (_, error) => Console.WriteLine($"Error: {error}");
 
-            this.consumer.OnConsumeError += (_, msg) =>
-                Console.WriteLine($"Consume error ({msg.TopicPartitionOffset}): {msg.Error}");
-
             if (this.consumeFromOffset != null)
             {
                 var topicPartitionOffsets = this.consumeFromOffset.Select(x => new TopicPartitionOffset(
@@ -68,23 +64,23 @@ namespace Legion.Kafka
 
             while (cancellationToken.KeepRunning())
             {
-                Message msg;
-                if (!this.consumer.Consume(out msg, TimeSpan.FromMilliseconds(100)))
+                var result = this.consumer.Consume(TimeSpan.FromMilliseconds(100));
+                if(result == null)
                 {
                     continue;
                 }
 
-                Console.WriteLine($"Topic: {msg.Topic} Partition: {msg.Partition} Offset: {msg.Offset} {msg.Value}");
+                Console.WriteLine($"Topic: {result.Topic} Partition: {result.Partition} Offset: {result.Offset} {result.Value}");
 
-                await this.HandleMessage(msg);
+                await this.HandleMessage(result);
 
                 Console.WriteLine($"Committing offset");
-                var committedOffsets = this.consumer.CommitAsync(msg).Result;
+                var committedOffsets = this.consumer.Commit(result);
                 Console.WriteLine($"Committed offset: {committedOffsets}");
             }
         }
 
-        private async Task HandleMessage(Message message)
+        private async Task HandleMessage(ConsumeResult<byte[], byte[]> message)
         {
             var messageObject = this.messageSerializer.Deserialize(message.Value);
 
